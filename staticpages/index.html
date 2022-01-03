@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="shortcut icon" href="#">
+        <title> view product</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+       
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+        <div id='create-update' style="display: none">
+            <h2>Create-Edit</h2>
+            <table id="create-Update-Form">
+                <tr>
+                    <td>SerialNum</td>
+                    <td><input type= "text" name = "SerialNum" id= "idInput"></td>
+                </tr>
+                <tr>    
+                    <td>productname</td>
+                    <td><input type= "text" name = "productname"></td>
+                </tr>
+                <tr>    
+                    <td>manufacturer</td>
+                    <td><input type= "text" name = "manufacturer"></td>
+                </tr>
+                <tr>    
+                    <td>price</td>
+                    <td><input type ="currency" name = "price"></td>
+                </tr>    
+                    <td></td><td>
+                        <button id= "create-button" onclick="doCreate()">Create</button>
+                        <button id= "update-button" onclick="doUpdate()">Update</button>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div id = "display">
+            <h2>Product</h2>
+            <button onclick= "ShowCreate()"> Create </button>
+            <table id= "producttable" class= "table">
+                <tr>
+                    <th>SerialNum</th><th>productname</th><th>manufacturer</th><th>price</th><th></th><th></th>
+                </tr>
+              
+
+            </table>
+
+        </div>
+
+        <script>
+           
+        function ShowCreate(){
+                document.getElementById('display').style.display = 'none'
+                document.getElementById('update-button').style.display = 'none'
+                document.getElementById('create-button').style.display = 'block'
+                document.getElementById('create-update').style.display = 'block'
+                
+            }
+        function showUpdate(thisElem){
+                var rowElement = thisElem.parentNode.parentNode;
+                product = readProductFromRow(rowElement)
+                populateForm(product)
+                
+
+
+                document.getElementById('display').style.display = 'none'
+                document.getElementById('update-button').style.display = 'block'
+                document.getElementById('create-button').style.display = 'none'
+                document.getElementById('create-update').style.display = 'block'
+                
+
+
+        }
+        function readProductFromRow(rowElement){
+                product= {}
+                product.SerialNum= rowElement.getAttribute("id");
+                product.productname= rowElement.cells[1].firstChild.textContent
+                product.manufacturer= rowElement.cells[2].firstChild.textContent
+                product.price= rowElement.cells[3].firstChild.textContent
+                return product        
+        }
+        
+        function populateForm(product){
+           
+                var form = document.getElementById("create-Update-Form")
+              
+                form.querySelector('input[name= "SerialNum"]').value = product.SerialNum
+                form.querySelector('input[name= "SerialNum"]').disabled = true
+                form.querySelector('input[name="productname"]').value= product.productname
+                form.querySelector('input[name="manufacturer"]').value= product.manufacturer
+                form.querySelector('input[name="price"]').value= product.price   
+        }
+        function clearForm(){
+           
+           var form = document.getElementById("create-Update-Form")
+         
+           form.querySelector('input[name= "SerialNum"]').value = ''
+           form.querySelector('input[name= "SerialNum"]').disabled = false
+           form.querySelector('input[name="productname"]').value= ''
+           form.querySelector('input[name="manufacturer"]').value= ''
+           form.querySelector('input[name="price"]').value= ''
+   }
+
+
+        function doCreate(){
+                console.log("in doCreate")
+                product= getProductFromForm()
+                $.ajax({
+                    url: "/product",
+                    data: JSON.stringify(product),
+                    method: "POST",
+                    dataType:"JSON",
+                    contentType: "application/json; charset=utf-8",
+                    success:function(result){
+                        console.log("result")
+                        addProductToTable(product)
+                        showDisplay()
+                        clearForm()
+
+                    },
+
+
+                
+                "error":function(xhr, status, error){
+                    console.log("error"+ error)
+
+                }
+            })
+        }
+        function doUpdate(){
+            product = getProductFromForm()
+            updateServer(product)
+            
+            
+            
+        }
+
+        function updateServer(product){
+            $.ajax({
+                    url: "/product/"+ product.SerialNum,
+                    data: JSON.stringify(product),
+                    method: "PUT",
+                    dataType:"JSON",
+                    contentType: "application/json; charset=utf-8",
+                    success:function(result){
+                        console.log("result")
+                        updateTableRow(product)
+                        showDisplay()
+                        clearForm()
+
+                    },
+
+
+                
+                "error":function(xhr, status, error){
+                    console.log("error"+ error)
+
+                }
+            })
+
+
+        }
+        function doDelete(thisElem){
+            var tableElement = document.getElementById('producttable');
+            var rowElement = thisElem.parentNode.parentNode;
+            var index = rowElement.rowIndex;
+            SerialNum= rowElement.getAttribute("id");
+            $.ajax({
+                url: "/product/"+SerialNum,
+                method: "DELETE",
+                dataType: "JSON",
+                success: function(result){
+                    tableElement.deleteRow(index);    
+
+                },
+                error: function(xhr,status,error){
+                    console.log(error)
+
+                }
+
+            })
+            tableElement.deleteRow(index);
+                
+
+        }
+        function updateTableRow(product){
+            rowElement= document.getElementById(product.SerialNum)
+            rowElement.cells[1].firstChild.textContent= book.productname
+            rowElement.cells[2].firstChild.textContent= book.manufacturer
+            rowElement.cells[3].firstChild.textContent= book.price
+            //console.log("updating table")
+
+
+        }
+        function getProductFromForm(){
+                var form = document.getElementById("create-Update-Form")
+                var product= {}
+                product.SerialNum= form.querySelector('input[name= "SerialNum"]').value
+                product.productname= form.querySelector('input[name="productname"]').value
+                product.manufacturer= form.querySelector('input[name="manufacturer"]').value
+                product.price= form.querySelector('input[name="price"]').value
+                //console.log(product)
+                return product
+                
+            }
+        function showDisplay(){
+                document.getElementById('display').style.display = 'block'
+                document.getElementById('create-update').style.display = 'none'
+            }
+
+        function populateTable(){
+                //ajax to get products
+                $.ajax({
+                    url: "http://127.0.0.1:5000/product",
+                    method: "GET",
+                    datatype:"JSON", 
+                    success:function(result){
+                        for (product of result){
+                            addProductToTable(product);
+                        }
+
+                    },
+                    error:function(xhr, status, error){
+                        console.log("error"+error + "code"+status)
+                    }
+                });
+                
+            }
+        function addProductToTable(product){
+                console.log("here we are")
+                tableElem = document.getElementById("producttable")
+                rowElem = tableElem.insertRow(-1)
+                rowElem.setAttribute("id", product.SerialNum)
+                cell1= rowElem.insertCell(0)
+                cell1.innerHTML = product.SerialNum
+                cell2= rowElem.insertCell(1)
+                cell2.innerHTML = product.productname
+                cell3= rowElem.insertCell(2)
+                cell3.innerHTML = product.manufacturer
+                cell4= rowElem.insertCell(3)
+                cell4.innerHTML = product.price
+                cell5= rowElem.insertCell(4)
+                cell5.innerHTML = '<button onclick = "showUpdate(this)">Update</button>'
+                cell6= rowElem.insertCell(5)
+                cell6.innerHTML = '<button onclick = "doDelete(this)">Delete</button>'           
+            }
+            populateTable()
+         </script>
+    </body>
+
+
+
+
+</html>
