@@ -11,7 +11,7 @@ class ProductDao:
         )
         print ("Connection Made")
 
-
+# function that allows for the creation of a product on the product table
     def create(self, product):
         cursor = self.db.cursor()
         sql = "insert into product (SerialNum, productname, manufacturer, price) values (%s,%s,%s,%s)"
@@ -24,7 +24,7 @@ class ProductDao:
         cursor.execute(sql, values)
         self.db.commit()
         return cursor.lastrowid
-
+# function that displays all from the product table
     def getAll(self):
         cursor = self.db.cursor()
         sql = "select * from product"
@@ -38,7 +38,7 @@ class ProductDao:
 
         return returnArray    
 
-
+# function that finds a product from its serial number
     def findById(self, SerialNum):
         cursor = self.db.cursor()
         sql = "select * from product where SerialNum = %s"
@@ -49,7 +49,7 @@ class ProductDao:
 
         return self.convertToDict(result)
         
-
+# function that will update a product in the product table
     def update(self, product):
         cursor = self.db.cursor()
         sql = "update product set productname = %s, manufacturer = %s, price= %s where SerialNum = %s"
@@ -63,7 +63,7 @@ class ProductDao:
         self.db.commit()
         return product
         
-
+# function that will delete a product from the product table
     def delete(self, SerialNum):
         cursor = self.db.cursor()
         sql = "delete from product where SerialNum = %s"
@@ -74,7 +74,7 @@ class ProductDao:
 
 
 
-
+# function that will convert a row to a dictionary
     def convertToDict(self, result):
         colnames= ['SerialNum', "productname", "manufacturer", "price"]
         product = {}

@@ -1,3 +1,5 @@
+#Code taking from https://youtu.be/2Zz97NVbH0U
+
 from flask import (
     Flask,
     jsonify,
@@ -16,7 +18,7 @@ class User:
 
     def __repr__(self):
         return f"<User:{self.username}>"    
-
+# Below is the two users that can login
 users = []
 users.append(User(id=1, username= "Aaron", password= "password"))
 users.append(User(id=1, username= "gmit", password= "gmit"))
@@ -55,10 +57,11 @@ def index():
 def getAll():
     return jsonify(productDao.getAll())
 
+#find by id
 @app.route('/product/<int:SerialNum>')
 def findById(SerialNum):
     return jsonify(productDao.findById(SerialNum)) 
-
+#create
 @app.route('/product', methods= ['POST'])
 def create():
 
@@ -72,7 +75,7 @@ def create():
         "price": request.json["price"]
     }      
     return jsonify(productDao.create(product))
-
+#update
 @app.route('/product/<int:SerialNum>', methods= ["PUT"])
 def update(SerialNum):
     foundproduct= productDao.findById(SerialNum)
@@ -89,7 +92,7 @@ def update(SerialNum):
     productDao.update(currentproduct)                  
 
     return jsonify(currentproduct)
-
+#delete
 @app.route('/product/<int:SerialNum>', methods = ["DELETE"])
 def delete(SerialNum):
     productDao.delete(SerialNum)
