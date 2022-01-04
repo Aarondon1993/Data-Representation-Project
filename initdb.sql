@@ -1,3 +1,4 @@
+create database electronicshop;
 use electronicshop;
 create table product(
 	SerialNum int PRIMARY KEY,

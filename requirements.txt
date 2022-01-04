@@ -1,0 +1,6 @@
+The below modules are required to run this repository
+
+flask
+(Flask,jsonify,redirect,render_template,request,session,url_for,abort)
+mysql.connector
+dbconfig 
